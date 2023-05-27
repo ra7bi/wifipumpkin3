@@ -65,6 +65,8 @@ class Clients(ExtensionUI):
                     self.get_mac_vendor(data_dict[data]["MAC"]),
                 ]
             )
+        print(dhcp_mode.getStaClients)  
+        print(dhcp_mode.getStaClients)    
         print(display_messages("Clients:", info=True, sublime=True))
         display_tabulate(("Hostname", "IP", "Mac", "Vendor"), self.table_clients)
         print(display_messages("Total Devices: {}\n".format(len(data_dict)), info=True))

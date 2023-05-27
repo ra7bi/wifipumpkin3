@@ -6,6 +6,7 @@ import wifipumpkin3.core.servers.rest.blueprints.restapi.logger as res_logger
 import wifipumpkin3.core.servers.rest.blueprints.restapi.plugins as res_plugins
 import wifipumpkin3.core.servers.rest.blueprints.restapi.proxies as res_proxies
 import wifipumpkin3.core.servers.rest.blueprints.restapi.commands as res_command
+import wifipumpkin3.core.servers.rest.blueprints.restapi.sbk as res_sbk
 
 # This file is part of the wifipumpkin3 Open Source Project.
 # wifipumpkin3 is licensed under the Apache 2.0.
@@ -36,10 +37,16 @@ def init_app(app):
     api.add_resource(res_logger.getAllFileLogResource, "/loggers")
 
     api.add_resource(
+        res_sbk.SbkPluginsResource,
+        "/config/sbk",
+    )
+
+    api.add_resource(
         res_ap.SettingsAccesspointResource,
         "/config/accesspoint",
         "/config/accesspoint/<string:attribute>",
-    )
+    )   
+
     api.add_resource(
         res_ap.SettingsDHCPResource, "/config/dhcp", "/config/dhcp/<string:attribute>"
     )

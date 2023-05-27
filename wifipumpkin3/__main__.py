@@ -249,7 +249,11 @@ def main():
         sys.exit("[!] Wp3 must be run as root.")
 
     wp3_header()
-
+    print('\n\r')
+    print("----------------------------- MR.CODER 56-------------------- \r\n")
+    print('\n\r')
+    
+    # Run The Rest api server .. 
     prompt = PumpkinShell(parse_args)
     prompt.cmdloop("Starting prompt...")
     sys.exit(app.exec_())

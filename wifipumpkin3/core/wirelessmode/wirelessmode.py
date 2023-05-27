@@ -184,6 +184,7 @@ class Mode(Qt.QObject):
 
     def LogOutput(self, data):
         """get inactivity client from hostapd response"""
+        print('test')
         pass
     
     @property
