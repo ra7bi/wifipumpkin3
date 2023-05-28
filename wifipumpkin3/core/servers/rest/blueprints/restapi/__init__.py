@@ -7,7 +7,7 @@ import wifipumpkin3.core.servers.rest.blueprints.restapi.plugins as res_plugins
 import wifipumpkin3.core.servers.rest.blueprints.restapi.proxies as res_proxies
 import wifipumpkin3.core.servers.rest.blueprints.restapi.commands as res_command
 import wifipumpkin3.core.servers.rest.blueprints.restapi.sbk as res_sbk
-
+import wifipumpkin3.core.servers.rest.blueprints.gui.gui as gui
 # This file is part of the wifipumpkin3 Open Source Project.
 # wifipumpkin3 is licensed under the Apache 2.0.
 
@@ -31,6 +31,7 @@ api = Api(bp)
 
 
 def init_app(app):
+
 
     api.add_resource(res_auth.LoginResource, "/authenticate/")
     api.add_resource(res_logger.getFileLogResource, "/logger/<string:filename>")
@@ -81,3 +82,4 @@ def init_app(app):
     api.add_resource(res_command.CommandsPostResource, "/commands")
 
     app.register_blueprint(bp)
+    app.register_blueprint(gui.bp_gui)
