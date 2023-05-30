@@ -6,6 +6,7 @@ import base64
 from flask import session
 
 
+
 bp_gui = Blueprint('gui', __name__, url_prefix='/gui')
 
 def base64_encode_credentials(username, password):
@@ -25,6 +26,7 @@ def token_required(func):
             # Redirect to login page if token is not present or invalid
             return redirect('/gui/login')
     return decorated_func
+
 
 
 
@@ -115,3 +117,4 @@ def is_valid_token(token, secret_key):
         return True
     except jwt.InvalidTokenError:
         return False
+    

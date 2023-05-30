@@ -4,6 +4,8 @@ from wifipumpkin3.core.utility.printer import (
     display_messages,
     display_tabulate,
 )
+import json
+
 
 # This file is part of the wifipumpkin3 Open Source Project.
 # wifipumpkin3 is licensed under the Apache 2.0.
@@ -33,6 +35,7 @@ class Ap(ExtensionUI):
         self.root = root
 
         self.register_command("do_ap", self.do_ap)
+        self.register_command("do_ap_json", self.do_ap_json)
         self.register_command("help_ap", self.help_ap)
 
         super(Ap, self).__init__(parse_args=self.parse_args, root=self.root)
@@ -99,3 +102,54 @@ class Ap(ExtensionUI):
                 print("  {}={}".format(key, self.root.conf.get("hostapd_config", key)))
             print("\n")
             self.show_help_command("help_hostapd_config_command")
+
+
+
+
+#------------- UI 
+    def do_ap_json(self, args):
+        """ap: show all variable and status from AP"""
+        headers_table = [
+            "bssid",
+            "ssid",
+            "channel",
+            "interface",
+            "security",
+            "hostapd_config",
+        ]
+        output_table = []
+
+        result = {
+            "ap_settings": {
+                "output": {}
+            },
+            "Settings Security": {
+                "output": {}
+            },
+            "Settings Hostapd": []
+        }
+
+        status_ap = self.root.conf.get("accesspoint", "status_ap", format=bool)
+        result["ap_settings"]["output"] = {
+            key: self.root.conf.get("accesspoint", self.root.commands[key])
+            for key in headers_table
+        }
+        result["ap_settings"]["output"]["status"] = True if status_ap else False
+
+        enable_security = self.root.conf.get("accesspoint", self.root.commands["security"], format=bool)
+        enable_hostapd_config = self.root.conf.get("accesspoint", self.root.commands["hostapd_config"], format=bool)
+
+        if enable_security:
+            result["Settings Security"]["output"] = {
+                "wpa_algorithms": self.root.conf.get("accesspoint", "wpa_algorithms"),
+                "wpa_sharedkey": self.root.conf.get("accesspoint", "wpa_sharedkey"),
+                "wpa_type": self.root.conf.get("accesspoint", "wpa_type")
+            }
+
+        if enable_hostapd_config:
+            result["Settings Hostapd"] = [
+                {key: self.root.conf.get("hostapd_config", key)}
+                for key in self.conf.get_all_childname("hostapd_config")
+            ]
+
+        print(json.dumps(result, indent=4))

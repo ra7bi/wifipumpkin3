@@ -1,3 +1,4 @@
+import json
 from wifipumpkin3.core.common.terminal import ExtensionUI
 from wifipumpkin3.core.servers.dhcp.dhcp import DHCPServers
 from wifipumpkin3.core.utility.printer import (
@@ -35,6 +36,8 @@ class Clients(ExtensionUI):
         self.root = root
 
         self.register_command("do_clients", self.do_clients)
+        self.register_command("do_clients_json", self.do_clients)
+
 
         super(Clients, self).__init__(parse_args=self.parse_args, root=self.root)
 
@@ -70,3 +73,28 @@ class Clients(ExtensionUI):
         print(display_messages("Clients:", info=True, sublime=True))
         display_tabulate(("Hostname", "IP", "Mac", "Vendor"), self.table_clients)
         print(display_messages("Total Devices: {}\n".format(len(data_dict)), info=True))
+
+
+        def do_clients_json(self, args):
+            """ap: show all connected clients on AP"""
+            dhcp_mode = self.root.getDefault.getController("dhcp_controller").Active
+            data_dict = dhcp_mode.getStaClients
+
+            if not data_dict:
+                return json.dumps({"message": "No clients connected on AP!"})
+
+            table_clients = []
+            for data in data_dict:
+                table_clients.append({
+                    "HOSTNAME": data_dict[data]["HOSTNAME"],
+                    "IP": data_dict[data]["IP"],
+                    "MAC": data_dict[data]["MAC"],
+                    "Vendor": self.get_mac_vendor(data_dict[data]["MAC"])
+                })
+
+            result = {
+                "clients": table_clients,
+                "total_devices": len(data_dict)
+            }
+
+            return json.dumps(result)

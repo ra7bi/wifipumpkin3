@@ -4,8 +4,47 @@
 
 {% block content %}
 
-<h1>Welcome, {{ session['token'] }}!</h1>
-<div class="card">
+
+<row>
+
+    <div class="row">
+      <div class="col-sm-4">
+        <div class="card">
+          <div class="card-header">
+            <i class="material-icons opacity-10 icon icon-shape icon-lg bg-gradient-primary shadow text-center border-radius-lg">account_balance</i>  Profile
+          </div>
+         
+          <div class="card-body">
+            <p>This is the content of the first card.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="card">
+          <div class="card-header">
+            <i class="material-icons">work</i> Work
+          </div>
+          <div class="card-body">
+            <p>This is the content of the second card.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="card">
+          <div class="card-header">
+            <i class="material-icons">person</i> Profile
+          </div>
+          <div class="card-body">
+            <p>This is the content of the third card.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+<div class="col-lg-6">
+
+  <div class="card">
     <div class="card-header mx-4 p-3 text-center">
       <div class="icon icon-shape icon-lg bg-gradient-primary shadow text-center border-radius-lg">
         <i class="material-icons opacity-10">account_balance</i>
@@ -13,11 +52,31 @@
     </div>
     <div class="card-body pt-0 p-3 text-center">
       <h6 class="text-center mb-0">Salary</h6>
-      <span class="text-xs">Belong Interactive</span>
-      <hr class="horizontal dark my-3">
-      <h5 class="mb-0">+$2000</h5>
+      <div id="apInfo"></div>
+  
     </div>
   </div>
+  
+</div>
+<div class="col-lg-6">
+  
+<div class="card">
+  <div class="card-header mx-4 p-3 text-center">
+    <div class="icon icon-shape icon-lg bg-gradient-primary shadow text-center border-radius-lg">
+      <i class="material-icons opacity-10">account_balance</i>
+    </div>
+  </div>
+  <div class="card-body pt-0 p-3 text-center">
+    <h6 class="text-center mb-0">Salary</h6>
+    <div id="apInfo"></div>
+
+  </div>
+</div>
+</div>
+
+</row>
+
+
 <!-- Home page specific content -->
 
 
@@ -33,7 +92,7 @@
     // jQuery is not loaded
     console.log('jQuery is not loaded!');
   }
-        var url = 'http://127.0.0.1:1337/api/v1/commands/ap';
+        var url = 'http://127.0.0.1:1337/api/v1/commands/ap_json';
         var token = '{{ session['token'] }}';
   
         $.ajax({
@@ -43,8 +102,33 @@
             },
             method: 'GET',
             success: function(response) {
-              var values = response[6].split(" | ");
-              console.log(values);
+            // Join the array elements into a single string
+            var jsonResponse = JSON.parse(response.join(''));
+
+            // Access the data from the parsed JSON
+            var accessPoint = jsonResponse['ap_settings']['output'];
+            var security = jsonResponse['Settings Security']['output'];
+
+        // Create the HTML content
+        var html = '<div class="card">' +
+                   '<div class="card-body">' +
+                   '<h3 class="card-title">Access Point Information</h3>' +
+                   '<p class="card-text"><i class="material-icons">wifi</i> BSSID: ' + accessPoint['bssid'] + '</p>' +
+                   '<p class="card-text"><i class="material-icons">network_wifi</i> SSID: ' + accessPoint['ssid'] + '</p>' +
+                   '<p class="card-text"><i class="material-icons">settings_input_antenna</i> Channel: ' + accessPoint['channel'] + '</p>' +
+                   '<p class="card-text"><i class="material-icons">device_hub</i> Interface: ' + accessPoint['interface'] + '</p>' +
+                   '<p class="card-text"><i class="material-icons">security</i> Security: ' + accessPoint['security'] + '</p>' +
+                   '<p class="card-text"><i class="material-icons">build</i> Hostapd Config: ' + accessPoint['hostapd_config'] + '</p>' +
+                   '<p class="card-text"><i class="material-icons">power_settings_new</i> Status: ' + accessPoint['status'] + '</p>' +
+                   '<h3 class="card-title">Security Information</h3>' +
+                   '<p class="card-text"><i class="material-icons">lock</i> WPA Algorithms: ' + security['wpa_algorithms'] + '</p>' +
+                   '<p class="card-text"><i class="material-icons">vpn_key</i> WPA Shared Key: ' + security['wpa_sharedkey'] + '</p>' +
+                   '<p class="card-text"><i class="material-icons">security</i> WPA Type: ' + security['wpa_type'] + '</p>' +
+                   '</div>' +
+                   '</div>';
+
+        // Set the HTML content in the div element
+        $('#apInfo').html(html);
              
             }
         });

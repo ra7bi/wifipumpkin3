@@ -256,4 +256,5 @@ def main():
     # Run The Rest api server .. 
     prompt = PumpkinShell(parse_args)
     prompt.cmdloop("Starting prompt...")
+   
     sys.exit(app.exec_())
