@@ -6,13 +6,13 @@
 
 
     <div class="row">
-      <div class="col-sm-4">
-        <div class="card">
+      <div class="col-sm-6">
+        <div class="card mb-4">
 
           <div class="card-body">
              <h4><i class="material-icons">wifi</i> Access Point </h4>
           
-             <div class="d-flex justify-content-center">
+             <div class="d-flex justify-content-left">
               <div id="apInfo"></div>
             </div>
             
@@ -21,7 +21,7 @@
       </div>
 
 
-      <div class="col-sm-4">
+      <div class="col-sm-6">
         <div class="card">
           <div class="card-body">
             <h4><i class="material-icons">hub</i> Connected Devices</h4>
@@ -29,16 +29,7 @@
           </div>
         </div>
       </div>
-      <div class="col-sm-4">
-        <div class="card">
-          <div class="card-header">
-            <i class="material-icons">person</i> Profile
-          </div>
-          <div class="card-body">
-            <p>This is the content of the third card.</p>
-          </div>
-        </div>
-      </div>
+
     </div>
 
 
@@ -98,29 +89,39 @@
 
 
         // Devices total 
-
         $.ajax({
-            url: url+'clients_json',
-            headers: {
-                'x-access-token': token
-            },
-            method: 'GET',
-            success: function(response) {
-              var jsonResponse = JSON.parse(response);
-              // Access the data in the JSON object
-              var clients = jsonResponse.clients;
-              var totalDevices = jsonResponse.total_devices;
+  url: url + 'clients_json',
+  headers: {
+    'x-access-token': token
+  },
+  method: 'GET',
+  success: function(response) {
+    console.log('Response:', response); // Log the response to inspect its content
 
-              // Do something with the data
-              console.log(clients);
-              console.log(totalDevices);
-              $('#conDevice').html('<b>'+totalDevices+'</b>');
-              
-            },
-            error: function(error) {
-              console.log('Error:', error);
-            }
-        });
+    if (response.length === 0) {
+      $('#conDevice').html('0 device connected');
+    } else {
+      try {
+        var jsonResponse = JSON.parse(response);
+        // Access the data in the JSON object
+        var clients = jsonResponse.clients;
+        var totalDevices = jsonResponse.total_devices;
+
+        // Do something with the data
+        if (Array.isArray(totalDevices) && totalDevices.length === 0) {
+          $('#conDevice').html('0 device connected');
+        } else {
+          $('#conDevice').html('<b>' + totalDevices + '</b>');
+        }
+      } catch (error) {
+        console.log('Error parsing JSON:', error);
+      }
+    }
+  },
+  error: function(error) {
+    console.log('Error:', error);
+  }
+});
 
     });
   
