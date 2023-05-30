@@ -74,7 +74,6 @@ def clients():
 
 
 @bp_gui.route('/')
-@token_required
 def gui_index():
     return render_template('index.html')
 
