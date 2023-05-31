@@ -36,7 +36,7 @@ class getFileLogResource(Resource):
         it = iter(it)
         return iter(lambda: tuple(islice(it, size)), ())
 
-    @token_required
+    #@token_required
     def get(self, filename=None):
         if not os.path.isfile("{}/{}.log".format(C.LOG_BASE, filename)):
             return exception("Cannot found that file log {}".format(filename), code=400)
@@ -118,7 +118,7 @@ class getAllFileLogResource(Resource):
             resp_list, key=lambda x: datetime.strptime(x["time"], "%Y-%m-%d %H:%M:%S")
         )
 
-    @token_required
+    #@token_required
     def get(self):
         for args in request.args:
             if not args in self.args:

@@ -6,7 +6,8 @@
 
 
     <div class="row">
-      <div class="col-sm-4">
+
+      <div class="col-sm-6">
         <div class="card mb-4">
 
           <div class="card-body">
@@ -18,61 +19,57 @@
             
           </div>
         </div>
+
+
       </div>
 
 
-
-
-      <div class="col-sm-4  mb-4">
+      <!-- <div class="col-sm-4 mb-6">
         <div class="card">
-          <div class="card-body">
-            <h4><i class="material-icons">hub</i> DHCP CONFIG</h4>
-            <div id="responseDiv" class="response-div">
-              <span id="loadingIcon" style="display: none;">
-                  <i class="material-icons">hourglass_empty</i> Loading...
-              </span>
+            <div class="card-body">
+              <h4><i class="material-icons">group</i> DHCP Config</h4>
+              <div id="dhresponseDiv" class="response-div"></div>
+            </div>
+        </div>
+        </div> -->
+        <div class="col-sm-6 mb-6">
+          <div class="card">
+            <div class="card-body">
+              <h4><i class="material-icons">hub</i> Connected Devices</h4>
+              <div id="conDevice"></div>
             </div>
           </div>
         </div>
-      </div>
+
       
-      <div class="col-sm-4  mb-4">
-        <div class="card">
-          <div class="card-body">
-            <h4><i class="material-icons">hub</i> Connected Devices</h4>
-            <div id="conDevice"></div>
-          </div>
-        </div>
-      </div>
 
     </div>
     <div class="row">
-      <div class="col-sm-6">
-        <div class="card">
-            <div class="card-body">
-              <h4><i class="material-icons">hub</i> Current Settings</h4>
-              <div id="settings" class="response-div">
-                <span id="loadingIcon" style="display: none;">
-                    <i class="material-icons">hourglass_empty</i> Loading...
-                </span>
-              </div>
-            </div>
-        </div>
-        </div>
+      
 
-        <div class="col-sm-6">
-          <div class="card">
-              <div class="card-body">
-                <h4><i class="material-icons">group</i> Client History</h4>
-                <div id="settings" class="response-div">
-                  <span id="loadingIcon" style="display: none;">
-                      <i class="material-icons">hourglass_empty</i> Loading...
-                  </span>
+
+
+            <div class="col-sm-6  mb-6">
+              <div class="card">
+                  <div class="card-body">
+                    <h4><i class="material-icons">hub</i> Current Settings</h4>
+                    <div id="settings" class="response-div">
+              
+                    </div>
+                  </div>
+              </div>
+              </div>
+
+              <div class="col-sm-6  mb-6">
+                <div class="card">
+                    <div class="card-body">
+                      <h4><i class="material-icons">hub</i> Latest Clients </h4>
+                      <div id="settings" class="response-div">
+                
+                      </div>
+                    </div>
                 </div>
-              </div>
-          </div>
-          </div>
-
+                </div>
         </div>
 <!-- Home page specific content -->
 
@@ -86,127 +83,139 @@
         var url = 'http://127.0.0.1:1337/api/v1/';
         var token = '{{ session['token'] }}';
         fetchAPInfo(url,token);
-        fetchDhcpConfig(url,token) 
+        //fetchDhcpConfig(url,token) 
         parseSettings(url, token)
+        getDevicesTotal(url, token)
 
+  });
         // Devices total 
-        $.ajax({
-            url: url + 'commands/clients_json',
-            headers: {
-              'x-access-token': token
-            },
-            method: 'GET',
-            success: function(response) {
-              console.log('Response:', response); // Log the response to inspect its content
+        function getDevicesTotal(url, token) {
+          var settings = {
+                    async: true,
+                    crossDomain: true,
+                    url: url+ 'commands/clients',
+                    method: "GET",
+                    headers: {
+                      "Content-Type": "application/json"
+                    },
+                    processData: false,
+                    data: ""
+                  };
 
-              if (response.length === 0) {
-                $('#conDevice').html('0 device connected');
-              } else {
-                try {
-                  var jsonResponse = JSON.parse(response);
-                  // Access the data in the JSON object
-                  var clients = jsonResponse.clients;
-                  var totalDevices = jsonResponse.total_devices;
+                  $.ajax(settings).done(function(response){
+                    console.log('Response:', response); // Log the response to inspect its content
+                    $('#conDevice').html('<b>' + response + '</b>');
+                        // if (response.length === 0) {
+                        //   $('#conDevice').html('0 device connected');
+                        // } else {
+                        //   try {
+                        //     var jsonResponse = JSON.parse(response);
+                        //     // Access the data in the JSON object
+                        //     var clients = jsonResponse.clients;
+                        //     var totalDevices = jsonResponse.total_devices;
 
-                  // Do something with the data
-                  if (Array.isArray(totalDevices) && totalDevices.length === 0) {
-                    $('#conDevice').html('0 device connected');
-                  } else {
-                    $('#conDevice').html('<b>' + totalDevices + '</b>');
-                  }
-                } catch (error) {
-                  console.log('Error parsing JSON:', error);
+                        //     // Do something with the data
+                        //     if (Array.isArray(totalDevices) && totalDevices.length === 0) {
+                        //       $('#conDevice').html('0 device connected');
+                        //     } else {
+                        //       $('#conDevice').html('<b>' + totalDevices + '</b>');
+                        //     }
+                        //   } catch (error) {
+                        //     console.log('Error parsing JSON:', error);
+                        //   }
+                        // }
+                  });
                 }
-              }
-            },
-            error: function(error) {
-              console.log('Error:', error);
-            }
-          });
 
-    });
-  
   
 
 
     function fetchDhcpConfig(base_url,token) {
-        console.log('Hello');
-              var url = base_url+'config/dhcp';
-              var responseDiv = $("#responseDiv");
-              var loadingIcon = $("#loadingIcon");
 
-              loadingIcon.show();
+      var responseDiv = $("#dhresponseDiv");
+      var loadingIcon = $("#loadingIcon");
+      loadingIcon.show();
+      var settings = {
+                    async: true,
+                    crossDomain: true,
+                    url: base_url+ 'config/dhcp',
+                    method: "GET",
+                    headers: {
+                      "Content-Type": "application/json"
+                    },
+                    processData: false,
+                    data: ""
+                  };
 
-              $.ajax({
-                url: url,
-                headers: {
-                  'x-access-token': token
-                },
-                type: "GET",
-                dataType: "json",
-                success: function(response) {
-                  loadingIcon.hide();
-
-                  var html = '';
-                    // Process the response object
-                    for (var key in response) {
-                        if (response.hasOwnProperty(key)) {
-                            var value = response[key];
-
-                            // Add Material Icons based on the key
-                            switch (key) {
-                                case "broadcast":
-                                    html += '<p><i class="material-icons">wifi_tethering</i> ' + value + '</p>';
-                                    break;
-                                case "classtype":
-                                    html += '<p><i class="material-icons">device_hub</i> ' + value + '</p>';
-                                    break;
-                                case "leasetimeDef":
-                                    html += '<p><i class="material-icons">timer</i> ' + value + '</p>';
-                                    break;
-                                case "leasetimeMax":
-                                    html += '<p><i class="material-icons">timer_off</i> ' + value + '</p>';
-                                    break;
-                                case "netmask":
-                                    html += '<p><i class="material-icons">settings_ethernet</i> ' + value + '</p>';
-                                    break;
-                                case "range":
-                                    html += '<p><i class="material-icons">dns</i> ' + value + '</p>';
-                                    break;
-                                case "router":
-                                    html += '<p><i class="material-icons">router</i> ' + value + '</p>';
-                                    break;
-                                case "subnet":
-                                    html += '<p><i class="material-icons">layers</i> ' + value + '</p>';
-                                    break;
-                                default:
-                                    html += '<p>' + key + ': ' + value + '</p>';
-                                    break;
-                            }
-                        }
-                    }
-
-                    responseDiv.html(html);
-                },
-                error: function(xhr, status, error) {
+                  $.ajax(settings).done(function(response){
                     loadingIcon.hide();
-                    responseDiv.html('<p>Error: ' + error + '</p>');
+
+                        var html = '';
+                          // Process the response object
+                          for (var key in response) {
+                              if (response.hasOwnProperty(key)) {
+                                  var value = response[key];
+
+                                  // Add Material Icons based on the key
+                                  switch (key) {
+                                      case "broadcast":
+                                          html += '<p><i class="material-icons">wifi_tethering</i> ' + value + '</p>';
+                                          break;
+                                      case "classtype":
+                                          html += '<p><i class="material-icons">device_hub</i> ' + value + '</p>';
+                                          break;
+                                      case "leasetimeDef":
+                                          html += '<p><i class="material-icons">timer</i> ' + value + '</p>';
+                                          break;
+                                      case "leasetimeMax":
+                                          html += '<p><i class="material-icons">timer_off</i> ' + value + '</p>';
+                                          break;
+                                      case "netmask":
+                                          html += '<p><i class="material-icons">settings_ethernet</i> ' + value + '</p>';
+                                          break;
+                                      case "range":
+                                          html += '<p><i class="material-icons">dns</i> ' + value + '</p>';
+                                          break;
+                                      case "router":
+                                          html += '<p><i class="material-icons">router</i> ' + value + '</p>';
+                                          break;
+                                      case "subnet":
+                                          html += '<p><i class="material-icons">layers</i> ' + value + '</p>';
+                                          break;
+                                      default:
+                                          html += '<p>' + key + ': ' + value + '</p>';
+                                          break;
+                                  }
+                              }
+                          }
+
+                          responseDiv.html(html);
+                  });
                 }
-            });
-          }
+ 
 
 
-          function fetchAPInfo(base_url, token) {
-            var url = base_url + "config/accesspoint";
-            var headers = { "x-access-token": token };
+    function fetchAPInfo(base_url, token) {
 
-            $.ajax({
-              url: url,
-              type: "GET",
-              headers: headers,
-              dataType: "json",
-              success: function(response) {
-                var apInfoDiv = $("#apInfo");
+
+      var responseDiv = $("#responseDiv");
+      var loadingIcon = $("#loadingIcon");
+      loadingIcon.show();
+      var settings = {
+                    async: true,
+                    crossDomain: true,
+                    url: base_url+ 'config/accesspoint',
+                    method: "GET",
+                    headers: {
+                      "Content-Type": "application/json"
+                    },
+                    processData: false,
+                    data: ""
+                  };
+
+                  $.ajax(settings).done(function(response){
+                    loadingIcon.hide();
+                    var apInfoDiv = $("#apInfo");
                 var html = "";
 
                 for (var key in response) {
@@ -264,92 +273,94 @@
                 }
 
                 apInfoDiv.html(html);
-              },
-              error: function(xhr, status, error) {
-                console.log("Error: " + error);
-              }
-            });
+
+                  });
+
+            
       }
 
 
-function parseSettings(base_url, token) {
-            var url = base_url + "pumpkinproxy/plugins";
-            var headers = { "x-access-token": token };
-            $.ajax({
-              url: url,
-              type: "GET",
-              headers: headers,
-              dataType: "json",
-              success: function(response) {
-                var settingsDiv = $("#settings");
-                 var html = "";
-                  
-                 for (var key in response) {
-    if (response.hasOwnProperty(key)) {
-      var value = response[key];
-      var icon = "";
-      var formattedKey = key.replace(/_/g, " ");
-      var formattedValue = "";
 
-      // Replace true with YES in green color and false with NO in red color
-      if (value === "true") {
-        formattedValue = "<span style='color: green;'>YES</span>";
-      } else if (value === "false") {
-        formattedValue = "<span style='color: red;'>NO</span>";
-      } else if (Array.isArray(value)) {
-        formattedValue += "<ul>";
-        for (var i = 0; i < value.length; i++) {
-          var innerDict = value[i];
-          for (var innerKey in innerDict) {
-            if (innerDict.hasOwnProperty(innerKey)) {
-              var innerValue = innerDict[innerKey];
-              formattedValue += "<li>" + innerKey + ": " + innerValue + "</li>";
-            }
-          }
-        }
-        formattedValue += "</ul>";
-      } else {
-        formattedValue = value;
-      }
+    function parseSettings(url, token) {
+                  var settings = {
+                    async: true,
+                    crossDomain: true,
+                    url: url+ "pumpkinproxy/plugins",
+                    method: "GET",
+                    headers: {
+                      "Content-Type": "application/json"
+                    },
+                    processData: false,
+                    data: ""
+                  };
+                  var loadingIcon = $("#loadingIcon");
+                  $.ajax(settings).done(function(response) {
+                  loadingIcon.hide();  
+                  var settingsDiv = $("#settings");
+                  var html = "";
+                  for (var key in response) {
+                    if (response.hasOwnProperty(key)) {
+                      var value = response[key];
+                      var icon = "";
+                      var formattedKey = key.replace(/_/g, " ");
+                      var formattedValue = "";
 
-      switch (key) {
-        case "beef":
-          icon = "<i class='material-icons'>settings</i>";
-          break;
-        case "downloadspoof":
-          icon = "<i class='material-icons'>file_download</i>";
-          break;
-        case "html_inject":
-          icon = "<i class='material-icons'>code</i>";
-          break;
-        case "js_inject":
-          icon = "<i class='material-icons'>code</i>";
-          break;
-        case "no-cache":
-          icon = "<i class='material-icons'>cached</i>";
-          break;
-        case "sbk":
-          icon = "<i class='material-icons'>lock</i>";
-          break;
-        // Add more cases for other keys as needed
+                      // Replace true with YES in green color and false with NO in red color
+                      if (value === "true") {
+                        formattedValue = "<span style='color: green;'>YES</span>";
+                      } else if (value === "false") {
+                        formattedValue = "<span style='color: red;'>NO</span>";
+                      } else if (typeof value === "object" && Array.isArray(value)) {
+                        continue;
+                      } else {
+                        formattedValue = value;
+                      }
 
-        default:
-          icon = "<i class='material-icons'>info</i>";
-          break;
-      }
+                      switch (key) {
+                        case "beef":
+                          icon = "<i class='material-icons'>settings</i>";
+                          break;
+                        case "downloadspoof":
+                          icon = "<i class='material-icons'>file_download</i>";
+                          break;
+                        case "html_inject":
+                          icon = "<i class='material-icons'>code</i>";
+                          break;
+                        case "js_inject":
+                          icon = "<i class='material-icons'>code</i>";
+                          break;
+                        case "no-cache":
+                          icon = "<i class='material-icons'>cached</i>";
+                          break;
+                        case "sbk":
+                          icon = "<i class='material-icons'>lock</i>";
+                          break;
+                        case "set_beef":
+                          icon = "<i class='material-icons'>settings</i>";
+                          break;
+                        case "set_downloadspoof":
+                          icon = "<i class='material-icons'>file_download</i>";
+                          break;
+                        case "set_html_inject":
+                          icon = "<i class='material-icons'>code</i>";
+                          break;
+                        case "set_js_inject":
+                          icon = "<i class='material-icons'>code</i>";
+                          break;
+                        // Add more cases for other keys as needed
 
-      html += "<p>" + icon + " " + formattedKey + ": " + formattedValue + "</p>";
-    }
-  }
+                        default:
+                          icon = "<i class='material-icons'>info</i>";
+                          break;
+                      }
+
+                      html += "<p>" + icon + " " + formattedKey + ": " + formattedValue + "</p>";
+                    }
+                  }
 
                   settingsDiv.html(html);
-                },
-              error: function(xhr, status, error) {
-                console.log("Error: " + error);
-              }
-            });
-          }
-
+                  });
+                }
   </script>
 
 

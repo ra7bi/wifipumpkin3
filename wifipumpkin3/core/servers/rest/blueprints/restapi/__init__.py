@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, make_response
 from flask_restful import Resource, Api
 import wifipumpkin3.core.servers.rest.blueprints.restapi.accesspoint as res_ap
 import wifipumpkin3.core.servers.rest.blueprints.restapi.authenticate as res_auth
@@ -17,7 +17,10 @@ gui = gui.bp_gui
 
 def init_app(app):
 
-
+    # Set cache-control headers globally
+    app.config['CACHE_CONTROL'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    app.config['CACHE_TYPE'] = 'null'
+    
     api.add_resource(res_auth.LoginResource, "/authenticate/")
     api.add_resource(res_logger.getFileLogResource, "/logger/<string:filename>")
     api.add_resource(res_logger.getAllFileLogResource, "/loggers")
@@ -69,5 +72,6 @@ def init_app(app):
     
     app.register_blueprint(bp)
     app.register_blueprint(gui)
-
+    
+    
     

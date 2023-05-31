@@ -1,3 +1,4 @@
+import json
 from wifipumpkin3.core.common.terminal import ExtensionUI
 from wifipumpkin3.core.config.globalimport import *
 from wifipumpkin3.core.utility.printer import display_messages, setcolor
@@ -63,23 +64,16 @@ class Dump(ExtensionUI):
         try:
             rdata = self.getDataFromOutput(data)
         except IndexError:
-            print(display_messages("cannot tracked: client not found.", error=True))
+            error_message = {"error": "cannot tracked: client not found."}
+            print(json.dumps(error_message))
             return
         mac_addr = list(rdata.keys())[0]
-        print(
-            display_messages(
-                "peer: [{}]".format(setcolor(mac_addr, color="green")), info=True
-            )
-        )
+        result = {"peer": mac_addr, "data": {}}
         for item in rdata:
             for key, value in rdata[item].items():
-                print(
-                    "     {} : {}".format(
-                        setcolor(key, color="blue"), setcolor(value, color="yellow")
-                    )
-                )
-        if rdata:
-            print("\n")
+                result["data"][key] = value
+        print(json.dumps(result))
+
 
     def help_dump(self):
         print(

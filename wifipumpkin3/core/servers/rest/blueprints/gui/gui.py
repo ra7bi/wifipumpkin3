@@ -1,4 +1,5 @@
 from functools import wraps
+import json
 from flask import Blueprint, current_app, redirect, render_template, request, session
 import jwt
 import requests
@@ -63,7 +64,6 @@ def login():
 
 
 @bp_gui.route('/protected')
-@token_required
 def clients():
     token = session.get('token')
     # Protected route accessible only with a valid token
@@ -109,6 +109,11 @@ def authenticate(username, password):
         # Authentication failed, handle the error
         return None
     
+
+@bp_gui.route('/connected_device')
+def connected_device():
+        return render_template('clients.html')
+
 
 def is_valid_token(token, secret_key):
     try:

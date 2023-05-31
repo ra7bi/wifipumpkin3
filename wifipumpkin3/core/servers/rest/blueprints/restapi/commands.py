@@ -37,7 +37,7 @@ class Capturing(list):
 
 
 class CommandsResource(Resource):
-    #@token_required
+    ##@token_required
     def get(self, command=None):
         self.root = PumpkinShell.getInstance()
         output = []
@@ -47,7 +47,7 @@ class CommandsResource(Resource):
 
 
 class CommandsPostResource(Resource):
-    #@token_required
+    ##@token_required
     def post(self, command=None):
         data = request.get_json(force=True)
         if not "commands" in data:

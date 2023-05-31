@@ -29,7 +29,7 @@ class SettingsAPmodeResource(Resource):
     config = SettingsINI.getInstance()
     key_name = "ap_mode"
 
-    @token_required
+    #@token_required
     def get(self, attribute=None):
         if attribute:
             if not attribute in self.config.get_all_childname(self.key_name):
@@ -45,7 +45,7 @@ class SettingsAPmodeResource(Resource):
             data[key] = self.config.get(self.key_name, key)
         return jsonify(data)
 
-    @token_required
+    #@token_required
     def post(self):
         data = request.get_json(force=True)
         for key, value in data.items():
@@ -62,7 +62,7 @@ class SettingsDHCPResource(Resource):
     config = SettingsINI.getInstance()
     key_name = "dhcp"
 
-    @token_required
+    #@token_required
     def get(self, attribute=None):
         if attribute:
             if not attribute in self.config.get_all_childname(self.key_name):
@@ -78,7 +78,7 @@ class SettingsDHCPResource(Resource):
             data[key] = self.config.get(self.key_name, key)
         return jsonify(data)
 
-    @token_required
+    #@token_required
     def post(self):
         data = request.get_json(force=True)
         for key, value in data.items():
@@ -98,7 +98,7 @@ class SettingsAccesspointResource(Resource):
     config = SettingsINI.getInstance()
     key_name = "accesspoint"
 
-    @token_required
+    #@token_required
     def get(self, attribute=None):
         if attribute:
             if not attribute in self.config.get_all_childname(self.key_name):
@@ -114,7 +114,7 @@ class SettingsAccesspointResource(Resource):
             data[key] = self.config.get(self.key_name, key)
         return jsonify(data)
 
-    @token_required
+    #@token_required
     def post(self):
         data = request.get_json(force=True)
         for key, value in data.items():

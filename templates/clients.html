@@ -1,0 +1,112 @@
+{% extends 'layout.html' %}
+
+{% block title %}Home Page{% endblock %}
+
+{% block content %}
+
+<div class="row">
+
+    <div class="col-sm-6">
+      <div class="card mb-4">
+
+        <div class="card-body">
+           <h4><i class="material-icons">wifi</i> Access Point </h4>
+        
+           <div class="d-flex justify-content-left">
+            <div id="apInfo"></div>
+          </div>
+          
+        </div>
+      </div>
+
+
+    </div>
+</div>
+
+
+
+{% endblock %}
+
+{% block js %}
+<script>
+  $(document).ready(function() {
+        var url = 'http://127.0.0.1:1337/api/v1/';
+        getDevicesTotal(url)
+
+  });
+
+  
+        // Devices total 
+        function getDevicesTotal(url) {
+
+        var clients = [];
+          var settings = {
+                    async: true,
+                    crossDomain: true,
+                    url: url+ 'commands/dump',
+                    method: "GET",
+                    headers: {
+                      "Content-Type": "application/json"
+                    },
+                    processData: false,
+                    data: ""
+                  };
+
+                  $.ajax(settings).done(function(response){
+
+                    console.log('Response:', response); // Log the response to inspect its content
+                    
+                    var peers = {};
+
+                    var currentPeer = null;
+
+                    for (var i = 0; i < response.length; i++) {
+                    var line = response[i].trim();
+
+                    if (line.startsWith("[*] peer:")) {
+                        var peerMatch = line.match(/\[(.*?)\]/);
+                        if (peerMatch) {
+                        var peer = peerMatch[1];
+                        currentPeer = peer;
+                        peers[currentPeer] = {};
+                        }
+                    } else if (currentPeer && line.includes(":")) {
+                        var parts = line.split(":");
+                        var key = parts[0].trim();
+                        var value = parts[1].trim();
+                        peers[currentPeer][key] = value;
+                    }
+                    }
+
+                console.log(peers);
+
+                    $('#conDevice').html('<b>' + response + '</b>');
+                        // if (response.length === 0) {
+                        //   $('#conDevice').html('0 device connected');
+                        // } else {
+                        //   try {
+                        //     var jsonResponse = JSON.parse(response);
+                        //     // Access the data in the JSON object
+                        //     var clients = jsonResponse.clients;
+                        //     var totalDevices = jsonResponse.total_devices;
+
+                        //     // Do something with the data
+                        //     if (Array.isArray(totalDevices) && totalDevices.length === 0) {
+                        //       $('#conDevice').html('0 device connected');
+                        //     } else {
+                        //       $('#conDevice').html('<b>' + totalDevices + '</b>');
+                        //     }
+                        //   } catch (error) {
+                        //     console.log('Error parsing JSON:', error);
+                        //   }
+                        // }
+                  });
+                }
+
+  
+
+            </script>
+
+
+            {% endblock %}
+            

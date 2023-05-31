@@ -28,7 +28,7 @@ class MitmPluginsResource(Resource):
     config = SettingsINI.getInstance()
     key_name = "mitm_modules"
 
-    @token_required
+    #@token_required
     def get(self):
         self.root = PumpkinShell.getInstance()
         mitm_plugins = self.root.mitm_controller.getInfo(excluded=("Config"))
@@ -43,7 +43,7 @@ class PluginsInfoResource(Resource):
     config = SettingsINI.getInstance()
     key_name = "mitm_modules"
 
-    @token_required
+    #@token_required
     def get(self, plugin_name=None):
         if plugin_name:
             if not plugin_name in self.config.get_all_childname(self.key_name):
@@ -66,7 +66,7 @@ class SettingsPluginResource(Resource):
     config = SettingsINI.getInstance()
     key_name = "mitm_modules"
 
-    @token_required
+    #@token_required
     def get(self, attribute=None):
         if attribute:
             if not attribute in self.config.get_all_childname(self.key_name):
@@ -82,7 +82,7 @@ class SettingsPluginResource(Resource):
             data[key] = self.config.get(self.key_name, key)
         return jsonify(data)
 
-    @token_required
+    #@token_required
     def post(self):
         data = request.get_json(force=True)
         for key, value in data.items():
@@ -105,7 +105,7 @@ class SettingsPluginsResource(Resource):
             return
         self.config = SettingsINI(plugin_settings_ini)
 
-    @token_required
+    #@token_required
     def get(self, plugin_id=None):
         self.create_config(plugin_id)
 
@@ -130,7 +130,7 @@ class SettingsPluginsResource(Resource):
 
         return jsonify(data)
 
-    @token_required
+    #@token_required
     def post(self, plugin_id=None):
         data = request.get_json(force=True)
         self.create_config(plugin_id)

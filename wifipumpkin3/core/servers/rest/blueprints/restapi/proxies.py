@@ -28,7 +28,7 @@ class ProxysPluginsResource(Resource):
     config = SettingsINI.getInstance()
     key_name = "proxy_plugins"
 
-    @token_required
+    #@token_required
     def get(self):
         self.root = PumpkinShell.getInstance()
         proxy_plugins = self.root.proxy_controller.getInfo(excluded=("Config"))
@@ -45,7 +45,7 @@ class ProxiesInfoResource(Resource):
     config = SettingsINI.getInstance()
     key_name = "proxy_plugins"
 
-    @token_required
+    #@token_required
     def get(self, proxy_name=None):
         if proxy_name:
             if not proxy_name in self.config.get_all_childname(self.key_name):
@@ -68,7 +68,7 @@ class ProxiesAllInfoResource(Resource):
     config = SettingsINI.getInstance()
     key_name = "proxy_plugins"
 
-    @token_required
+    #@token_required
     def get(self):
         self.root = PumpkinShell.getInstance()
         proxy_plugins = self.root.proxy_controller.getInfo(excluded=("Config"))
@@ -83,7 +83,7 @@ class SettingsProxyResource(Resource):
     config = SettingsINI.getInstance()
     key_name = "proxy_plugins"
 
-    @token_required
+    #@token_required
     def get(self, attribute=None):
         if attribute:
             if not attribute in self.config.get_all_childname(self.key_name):
@@ -99,7 +99,7 @@ class SettingsProxyResource(Resource):
             data[key] = self.config.get(self.key_name, key)
         return jsonify(data)
 
-    @token_required
+    #@token_required
     def post(self):
         data = request.get_json(force=True)
         for key, value in data.items():
