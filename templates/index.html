@@ -6,7 +6,7 @@
 
 
     <div class="row">
-      <div class="col-sm-6">
+      <div class="col-sm-4">
         <div class="card mb-4">
 
           <div class="card-body">
@@ -21,7 +21,22 @@
       </div>
 
 
-      <div class="col-sm-6">
+
+
+      <div class="col-sm-4  mb-4">
+        <div class="card">
+          <div class="card-body">
+            <h4><i class="material-icons">hub</i> DHCP CONFIG</h4>
+            <div id="responseDiv" class="response-div">
+              <span id="loadingIcon" style="display: none;">
+                  <i class="material-icons">hourglass_empty</i> Loading...
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-sm-4  mb-4">
         <div class="card">
           <div class="card-body">
             <h4><i class="material-icons">hub</i> Connected Devices</h4>
@@ -31,10 +46,34 @@
       </div>
 
     </div>
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="card">
+            <div class="card-body">
+              <h4><i class="material-icons">hub</i> Current Settings</h4>
+              <div id="settings" class="response-div">
+                <span id="loadingIcon" style="display: none;">
+                    <i class="material-icons">hourglass_empty</i> Loading...
+                </span>
+              </div>
+            </div>
+        </div>
+        </div>
 
+        <div class="col-sm-6">
+          <div class="card">
+              <div class="card-body">
+                <h4><i class="material-icons">group</i> Client History</h4>
+                <div id="settings" class="response-div">
+                  <span id="loadingIcon" style="display: none;">
+                      <i class="material-icons">hourglass_empty</i> Loading...
+                  </span>
+                </div>
+              </div>
+          </div>
+          </div>
 
-
-
+        </div>
 <!-- Home page specific content -->
 
 
@@ -43,96 +82,274 @@
 {% block js %}
 <script>
   $(document).ready(function() {
-    if (typeof jQuery !== 'undefined') {
-    // jQuery is loaded
-    console.log('jQuery is loaded!');
-  } else {
-    // jQuery is not loaded
-    console.log('jQuery is not loaded!');
-  }
-        var url = 'http://127.0.0.1:1337/api/v1/commands/';
+   
+        var url = 'http://127.0.0.1:1337/api/v1/';
         var token = '{{ session['token'] }}';
-  
-        $.ajax({
-            url: url+'ap_json',
-            headers: {
-                'x-access-token': token
-            },
-            method: 'GET',
-            success: function(response) {
-            // Join the array elements into a single string
-            var jsonResponse = JSON.parse(response.join(''));
-
-            // Access the data from the parsed JSON
-            var accessPoint = jsonResponse['ap_settings']['output'];
-            var security = jsonResponse['Settings Security']['output'];
-            if(accessPoint['status']){ 
-              accessPoint['status'] = 'Running'
-            }else{
-              accessPoint['status'] = 'OFF'
-              }
-        // Create the HTML content
-        var html = '<p class="card-text"><i class="material-icons">network_wifi</i> SSID: ' + accessPoint['ssid'] + '</p>' +
-                   '<p class="card-text"><i class="material-icons">settings_input_antenna</i> Channel: ' + accessPoint['channel'] + '</p>' +
-                   '<p class="card-text"><i class="material-icons">device_hub</i> Interface: ' + accessPoint['interface'] + '</p>' +
-                   '<p class="card-text"><i class="material-icons">security</i> Security: ' + accessPoint['security'] + '</p>' +
-                   '<p class="card-text"><i class="material-icons">power_settings_new</i> Status: ' + accessPoint['status'] + '</p>' +
-                   '<p class="card-text"><i class="material-icons">lock</i> WPA Algorithms: ' + security['wpa_algorithms'] + '</p>' +
-                   '<p class="card-text"><i class="material-icons">vpn_key</i> WPA Shared Key: ' + security['wpa_sharedkey'] + '</p>';
-
-        // Set the HTML content in the div element
-        $('#apInfo').html(html);
-             
-            }
-        });
-
-
+        fetchAPInfo(url,token);
+        fetchDhcpConfig(url,token) 
+        parseSettings(url, token)
 
         // Devices total 
         $.ajax({
-  url: url + 'clients_json',
-  headers: {
-    'x-access-token': token
-  },
-  method: 'GET',
-  success: function(response) {
-    console.log('Response:', response); // Log the response to inspect its content
+            url: url + 'commands/clients_json',
+            headers: {
+              'x-access-token': token
+            },
+            method: 'GET',
+            success: function(response) {
+              console.log('Response:', response); // Log the response to inspect its content
 
-    if (response.length === 0) {
-      $('#conDevice').html('0 device connected');
-    } else {
-      try {
-        var jsonResponse = JSON.parse(response);
-        // Access the data in the JSON object
-        var clients = jsonResponse.clients;
-        var totalDevices = jsonResponse.total_devices;
+              if (response.length === 0) {
+                $('#conDevice').html('0 device connected');
+              } else {
+                try {
+                  var jsonResponse = JSON.parse(response);
+                  // Access the data in the JSON object
+                  var clients = jsonResponse.clients;
+                  var totalDevices = jsonResponse.total_devices;
 
-        // Do something with the data
-        if (Array.isArray(totalDevices) && totalDevices.length === 0) {
-          $('#conDevice').html('0 device connected');
-        } else {
-          $('#conDevice').html('<b>' + totalDevices + '</b>');
-        }
-      } catch (error) {
-        console.log('Error parsing JSON:', error);
-      }
-    }
-  },
-  error: function(error) {
-    console.log('Error:', error);
-  }
-});
+                  // Do something with the data
+                  if (Array.isArray(totalDevices) && totalDevices.length === 0) {
+                    $('#conDevice').html('0 device connected');
+                  } else {
+                    $('#conDevice').html('<b>' + totalDevices + '</b>');
+                  }
+                } catch (error) {
+                  console.log('Error parsing JSON:', error);
+                }
+              }
+            },
+            error: function(error) {
+              console.log('Error:', error);
+            }
+          });
 
     });
   
   
-    var win = navigator.platform.indexOf('Win') > -1;
-    if (win && document.querySelector('#sidenav-scrollbar')) {
-      var options = {
-        damping: '0.5'
+
+
+    function fetchDhcpConfig(base_url,token) {
+        console.log('Hello');
+              var url = base_url+'config/dhcp';
+              var responseDiv = $("#responseDiv");
+              var loadingIcon = $("#loadingIcon");
+
+              loadingIcon.show();
+
+              $.ajax({
+                url: url,
+                headers: {
+                  'x-access-token': token
+                },
+                type: "GET",
+                dataType: "json",
+                success: function(response) {
+                  loadingIcon.hide();
+
+                  var html = '';
+                    // Process the response object
+                    for (var key in response) {
+                        if (response.hasOwnProperty(key)) {
+                            var value = response[key];
+
+                            // Add Material Icons based on the key
+                            switch (key) {
+                                case "broadcast":
+                                    html += '<p><i class="material-icons">wifi_tethering</i> ' + value + '</p>';
+                                    break;
+                                case "classtype":
+                                    html += '<p><i class="material-icons">device_hub</i> ' + value + '</p>';
+                                    break;
+                                case "leasetimeDef":
+                                    html += '<p><i class="material-icons">timer</i> ' + value + '</p>';
+                                    break;
+                                case "leasetimeMax":
+                                    html += '<p><i class="material-icons">timer_off</i> ' + value + '</p>';
+                                    break;
+                                case "netmask":
+                                    html += '<p><i class="material-icons">settings_ethernet</i> ' + value + '</p>';
+                                    break;
+                                case "range":
+                                    html += '<p><i class="material-icons">dns</i> ' + value + '</p>';
+                                    break;
+                                case "router":
+                                    html += '<p><i class="material-icons">router</i> ' + value + '</p>';
+                                    break;
+                                case "subnet":
+                                    html += '<p><i class="material-icons">layers</i> ' + value + '</p>';
+                                    break;
+                                default:
+                                    html += '<p>' + key + ': ' + value + '</p>';
+                                    break;
+                            }
+                        }
+                    }
+
+                    responseDiv.html(html);
+                },
+                error: function(xhr, status, error) {
+                    loadingIcon.hide();
+                    responseDiv.html('<p>Error: ' + error + '</p>');
+                }
+            });
+          }
+
+
+          function fetchAPInfo(base_url, token) {
+            var url = base_url + "config/accesspoint";
+            var headers = { "x-access-token": token };
+
+            $.ajax({
+              url: url,
+              type: "GET",
+              headers: headers,
+              dataType: "json",
+              success: function(response) {
+                var apInfoDiv = $("#apInfo");
+                var html = "";
+
+                for (var key in response) {
+                  if (response.hasOwnProperty(key)) {
+                    var value = response[key];
+                    var icon = "";
+
+                    // Remove underscores from key
+                    var formattedKey = key.replace(/_/g, " ");
+        
+             
+
+                    // Exclude certain keys
+                    if (
+                      key === "pydhcp_server" ||
+                      key === "pydns_server" ||
+                      key === "pydns_verbose" ||
+                      key === "current_session" ||
+                      key === "enable_hostapd_config" ||
+                      key === "dhcpd_server" ||
+                      key === "persistNetwokManager" ||
+                      key === "wpa_type" ||
+                      key === "pydns_zone_file"
+                    ) {
+                      continue; // Skip the current iteration
+                    }
+
+              
+              // Replace true with YES in green color and false with NO in red color
+                    if (value === "true") {
+                      value = "<span style='color: green;'>YES</span>";
+                      } else if (value === "false") {
+                        value = "<span style='color: red;'>NO</span>";
+                      } 
+                    // Add Material Icons based on the key
+                    switch (key) {
+                      case "ap_max_inactivity":
+                        icon = "<i class='material-icons'>schedule</i>";
+                        break;
+                      case "bssid":
+                        icon = "<i class='material-icons'>wifi</i>";
+                        break;
+                      case "channel":
+                        icon = "<i class='material-icons'>tune</i>";
+                        break;
+                      // Add more cases for other keys as needed
+
+                      default:
+                        icon = "<i class='material-icons'>info</i>";
+                        break;
+                    }
+
+                    html += "<p>" + icon + " " + formattedKey + ": " + value + "</p>";
+                  }
+                }
+
+                apInfoDiv.html(html);
+              },
+              error: function(xhr, status, error) {
+                console.log("Error: " + error);
+              }
+            });
       }
-      Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+
+
+function parseSettings(base_url, token) {
+            var url = base_url + "pumpkinproxy/plugins";
+            var headers = { "x-access-token": token };
+            $.ajax({
+              url: url,
+              type: "GET",
+              headers: headers,
+              dataType: "json",
+              success: function(response) {
+                var settingsDiv = $("#settings");
+                 var html = "";
+                  
+                 for (var key in response) {
+    if (response.hasOwnProperty(key)) {
+      var value = response[key];
+      var icon = "";
+      var formattedKey = key.replace(/_/g, " ");
+      var formattedValue = "";
+
+      // Replace true with YES in green color and false with NO in red color
+      if (value === "true") {
+        formattedValue = "<span style='color: green;'>YES</span>";
+      } else if (value === "false") {
+        formattedValue = "<span style='color: red;'>NO</span>";
+      } else if (Array.isArray(value)) {
+        formattedValue += "<ul>";
+        for (var i = 0; i < value.length; i++) {
+          var innerDict = value[i];
+          for (var innerKey in innerDict) {
+            if (innerDict.hasOwnProperty(innerKey)) {
+              var innerValue = innerDict[innerKey];
+              formattedValue += "<li>" + innerKey + ": " + innerValue + "</li>";
+            }
+          }
+        }
+        formattedValue += "</ul>";
+      } else {
+        formattedValue = value;
+      }
+
+      switch (key) {
+        case "beef":
+          icon = "<i class='material-icons'>settings</i>";
+          break;
+        case "downloadspoof":
+          icon = "<i class='material-icons'>file_download</i>";
+          break;
+        case "html_inject":
+          icon = "<i class='material-icons'>code</i>";
+          break;
+        case "js_inject":
+          icon = "<i class='material-icons'>code</i>";
+          break;
+        case "no-cache":
+          icon = "<i class='material-icons'>cached</i>";
+          break;
+        case "sbk":
+          icon = "<i class='material-icons'>lock</i>";
+          break;
+        // Add more cases for other keys as needed
+
+        default:
+          icon = "<i class='material-icons'>info</i>";
+          break;
+      }
+
+      html += "<p>" + icon + " " + formattedKey + ": " + formattedValue + "</p>";
     }
+  }
+
+                  settingsDiv.html(html);
+                },
+              error: function(xhr, status, error) {
+                console.log("Error: " + error);
+              }
+            });
+          }
+
   </script>
 
 

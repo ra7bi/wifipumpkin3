@@ -102,7 +102,6 @@ class Dhcpconf(ExtensionUI):
     #---- UI 
 
     def do_dhcpconf_json(self, args):
-        """ap: show/choise dhcp server configuration"""
         status_ap = self.root.conf.get("accesspoint", "status_ap", format=bool)
 
         if args:
@@ -122,28 +121,24 @@ class Dhcpconf(ExtensionUI):
                     "error": True
                 })
 
-        headers_table, output_table = ["Id", "Class", "IP address range", "Netmask", "Router"], []
-
         result = {
-            "DHCP Server Option": {
-                "headers": headers_table,
-                "output": []
-            },
-            "DHCP Server Settings": []
+            "DHCP Server Options": [],
+            "DHCP Server Settings": {}
         }
 
         for ip_class in self.ip_class:
-            result["DHCP Server Option"]["output"].append({
-                "Id": self.ip_class.index(ip_class),
+            dhcp_options = {
                 "Class": ip_class.split("-")[1],
                 "IP address range": self.root.conf.get(ip_class, "range"),
                 "Netmask": self.root.conf.get(ip_class, "netmask"),
                 "Router": self.root.conf.get(ip_class, "router")
-            })
+            }
+            result["DHCP Server Options"].append(dhcp_options)
 
         for config in self.root.conf.get_all_childname("dhcp"):
-            result["DHCP Server Settings"].append({
-                config: self.root.conf.get("dhcp", config)
-            })
+            result["DHCP Server Settings"][config] = self.root.conf.get("dhcp", config)
 
-        print (json.dumps(result))
+        print(json.dumps(result))
+
+
+
